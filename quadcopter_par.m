@@ -10,6 +10,15 @@ M_RB = [ mass*eye(3) , zeros(3) ; zeros(3) , Ic_x ];
 
 g = 9.82; % [m/s^2]
 
+% Body rate controller
+A = [zeros(3), inv(Ic_x); zeros(3), -eye(3)];
+B = [zeros(3); eye(3)];
+
+Q = eye(6);
+R = eye(3);
+
+[K_inner, S, P] = lqr(A,B,Q,R)    
+
 function IC = inertia_matrix(mass, pos)
     [n, ~] = size(pos);
     

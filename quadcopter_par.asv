@@ -1,0 +1,36 @@
+% Setup script
+clc
+clear
+
+p_x = [cos(pi/4), sin(pi/4) 0; cos(3*pi/4), sin(3*pi/4) 0; cos(-pi/4), sin(-pi/4) 0; cos(-3*pi/4), sin(-3* pi/4) 0];
+m_x = [1, 1, 1, 1];
+Ic_x = inertia_matrix(m_x, p_x);
+mass = sum(m_x);
+M_RB = [ mass*eye(3) , zeros(3) ; zeros(3) , Ic_x ];
+
+g = 9.82; % [m/s^2]
+
+% Body rate controller
+A = [zeros(3), inv(Ic_x); zeros(3), -eye(3)];
+B = [zeros(3); eye(3)];
+
+Q = eye(6);
+R = eye(6);
+
+function IC = inertia_matrix(mass, pos)
+    [n, ~] = size(pos);
+    
+    IC = zeros(3);
+    
+    for i=1:n
+        mat = [pos(i,2)^2 + pos(i,3)^2, -pos(i,1)*pos(i,2), -pos(i,1)*pos(i,3);
+               -pos(i,1)*pos(i,2), pos(i,1)^2 + pos(i,3)^2, -pos(i,2)*pos(i,3);
+               -pos(i,1)*pos(i,3), -pos(i,2)*pos(i,3), pos(i,1)^2 + pos(i,2)^2];
+        IC = IC + mass(i) * mat;
+    end
+
+end
+
+function skewed = skew(vec)
+    skewed = [0 -vec(3) vec(2); vec(3) 0 -vec(1); -vec(2) vec(1) 0];
+end
